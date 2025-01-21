@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h> // Pour strcmp
 #include "game.h"
 #include "renderer.h"
 
@@ -8,6 +9,17 @@
 #else
 #include "renderer_console.c"
 #endif
+
+void sleepMilliseconds(int ms) {
+#ifdef USE_CSFML
+    sfSleep((sfTime){ms * 1000});
+#else
+    struct timespec ts;
+    ts.tv_sec = ms / 1000;
+    ts.tv_nsec = (ms % 1000) * 1000000;
+    nanosleep(&ts, NULL);
+#endif
+}
 
 int main(int argc, char *argv[]) {
     bool useCSFML = false;
@@ -23,9 +35,10 @@ int main(int argc, char *argv[]) {
         updateGrid(grid);
 
         if (useCSFML) {
-            sfSleep((sfTime){200000}); 
+            sleepMilliseconds(200); // Ralentir la simulation
         } else {
-            getchar(); 
+            printf("Appuyez sur Entrée pour continuer...\n");
+            getchar(); // Attendre une entrée utilisateur en mode console
         }
     }
 
